@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>user REST service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <!-- Load AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+      var app = angular.module("UserManagement", []);
+
+      //Controller Part
+      app.controller("UserManagementController", function ($scope, $http) {
+
+        //Initialize page with default data which is blank in this example
+        $scope.users = [];
+
+        $scope.form = {
+          usertype: "",
+          password: "",
+          name: "",
+          surname: "",
+          address: "",
+          phone: ""
+        };
+
+        //Now load the data from server
+        _refreshPageData();
+
+        //HTTP POST methods for add users
+        $scope.add = function () {
+          var data = {
+          "usertype": $scope.form.usertype,
+          "username": $scope.form.username,
+          "password": $scope.form.password,
+          "name": $scope.form.name,
+          "surname": $scope.form.surname,
+          "address": $scope.form.address,
+          "phone": $scope.form.phone
+          };
+
+          $http({
+            method: "POST",
+            url: '/user',
+            data: angular.toJson(data),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(_success, _error);
+        };
+
+        /* Private Methods */
+        //HTTP GET- get all users collection
+        function _refreshPageData() {
+          $http({
+            method: 'GET',
+            url: '/user'
+          }).then(function successCallback(response) {
+            $scope.users = response.data;
+          }, function errorCallback(response) {
+            console.log(response.statusText);
+          });
+        }
+
+
+        function _success(response) {
+          _refreshPageData();
+          _clearForm();
+        }
+
+        function _error(response) {
+          alert(response.data.message || response.statusText);
+        }
+
+        //Clear the form
+        function _clearForm() {
+          $scope.form.usertype = "";
+          $scope.form.username = "";
+          $scope.form.password = "";
+          $scope.form.name = "";
+          $scope.form.surname = "";
+          $scope.form.address = "";
+          $scope.form.phone = "";
+        }
+      });
+    </script>
+</head>
+<body ng-app="UserManagement" ng-controller="UserManagementController">
+
+<div class="container">
+    <h1>REST Service - Users</h1>
+
+    <h3>Add a user</h3>
+    <form ng-submit="add()">
+        <div class="row">
+            <div class="col-6"><select name="Type" id="userType" ng-model="form.usertype">
+                <optgroup label="User type">
+                <option value="admin">Admin</option>
+                <option value="costumer">Costumer</option>
+            </select></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Username" ng-model="form.username" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="password" placeholder="Password" ng-model="form.password" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Name" ng-model="form.name" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Surname" ng-model="form.surname" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Address" ng-model="form.address" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Phone" ng-model="form.phone" size="60"/></div>
+        </div>
+        <input type="submit" value="Save"/>
+    </form>
+
+    <div class="row">
+        <div class="col-4"><h3>User List </h3></div>
+        <div class="col-8"><form action="/UserList.html">
+        <input type="submit" value="List" />
+    </form></div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">Username</div>
+        <div class="col-8">Usertype</div>
+    </div>
+    <div class="row" ng-repeat="user in users">
+        <div class="col-4">{{ user.name }}</div>
+        <div class="col-8">{{ user.usertype }}</div>
+    </div>
+</div>
+
+</body>
+</html>
